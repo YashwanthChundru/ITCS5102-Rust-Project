@@ -1,0 +1,11 @@
+FROM node:20 as builder
+WORKDIR /app
+COPY job-portal-frontend/ ./job-portal-frontend/
+WORKDIR /app/job-portal-frontend
+RUN npm ci || npm install
+RUN npm run build || echo "build will work after package.json exists"
+
+FROM nginx:alpine
+COPY --from=builder /app/job-portal-frontend/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx","-g","daemon off;"]

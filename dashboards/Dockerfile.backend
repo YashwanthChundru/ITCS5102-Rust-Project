@@ -1,0 +1,13 @@
+FROM rust:1.80 as builder
+WORKDIR /app
+COPY job-portal-backend/ ./job-portal-backend/
+WORKDIR /app/job-portal-backend
+RUN apt-get update && apt-get install -y pkg-config libssl-dev
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+WORKDIR /app
+COPY --from=builder /app/job-portal-backend/target/release/job-portal-backend /usr/local/bin/app
+COPY job-portal-backend/.env.example .env
+EXPOSE 8080
+CMD ["app"]
